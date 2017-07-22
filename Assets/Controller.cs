@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using SFB;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
@@ -18,6 +19,8 @@ public class Controller : MonoBehaviour
 
     bool useWebMInsteadOfMp4;
 
+    string rootDirectory;
+
     string GetFilePath(string relativePathFromRoot)
     {
         if (relativePathFromRoot.StartsWith("./"))
@@ -25,28 +28,34 @@ public class Controller : MonoBehaviour
             relativePathFromRoot = relativePathFromRoot.Substring(2);
         }
 
-        string path;
-        switch (Application.platform)
-        {
-            case RuntimePlatform.OSXPlayer:
-                path = Application.persistentDataPath + "/../../" + relativePathFromRoot;
-                break;
-            default:
-                path = Application.persistentDataPath + "/../" + relativePathFromRoot;
-                break;
-        }
-
-        return new FileInfo(path).FullName.Replace("\\", "/");
+        return new FileInfo(rootDirectory + relativePathFromRoot).FullName.Replace("\\", "/");
     }
 
     IEnumerator Start()
     {
+        rootDirectory = Application.persistentDataPath + "/../";
+
         if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer)
         {
             useWebMInsteadOfMp4 = true;
         }
 
         Screen.SetResolution(512, 512, false);
+
+        if (Application.platform == RuntimePlatform.OSXPlayer)
+        {
+            // OSX の場合にはアプリが別のパスに隔離されてしまうので問い合わせが必要
+            var dir = PlayerPrefs.HasKey("RootDirectory") ? PlayerPrefs.GetString("RootDirectory") : "";
+            var paths = StandaloneFileBrowser.OpenFilePanel("audio.wav を選択してください", dir, "wav", false);
+            if (paths.Length == 0)
+            {
+                Application.Quit();
+                yield break;
+            }
+
+            rootDirectory = Path.GetDirectoryName(paths[0]) + "/";
+            PlayerPrefs.SetString("RootDirectory", rootDirectory);
+        }
 
         if (File.Exists(GetFilePath("background.png")))
         {
