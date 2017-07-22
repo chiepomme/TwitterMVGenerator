@@ -1,4 +1,5 @@
 ﻿using SFB;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
@@ -33,7 +34,7 @@ public class Controller : MonoBehaviour
 
     IEnumerator Start()
     {
-        rootDirectory = Application.persistentDataPath + "/../";
+        rootDirectory = Application.dataPath + "/../";
 
         if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer)
         {
@@ -53,9 +54,11 @@ public class Controller : MonoBehaviour
                 yield break;
             }
 
-            rootDirectory = Path.GetDirectoryName(paths[0]) + "/";
+            rootDirectory = Uri.UnescapeDataString(Path.GetDirectoryName(paths[0]).Replace("file:", "") + "/");
             PlayerPrefs.SetString("RootDirectory", rootDirectory);
         }
+
+        print("rootDir:" + rootDirectory);
 
         if (File.Exists(GetFilePath("background.png")))
         {
@@ -90,15 +93,16 @@ public class Controller : MonoBehaviour
         yield return new WaitWhile(() => audiosource.isPlaying);
         recorder.EndRecording();
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
 
         if (useWebMInsteadOfMp4)
         {
-            var webmPath = "\"" + GetFilePath(LastPath + ".webm") + "\"";
+            var webmPath = "\"" + LastPath + ".webm" + "\"";
             var mp4Path = "\"" + GetFilePath(LastPath + ".mp4") + "\"";
             var exeExtension = Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ? ".exe" : "";
             var process = Process.Start(GetFilePath("ffmpeg/ffmpeg" + exeExtension), "-i " + webmPath + " " + mp4Path);
             process.WaitForExit();
+            File.Delete(LastPath + ".webm");
         }
 
         Application.Quit();
