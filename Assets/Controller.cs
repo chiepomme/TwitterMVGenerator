@@ -89,7 +89,10 @@ public class Controller : MonoBehaviour
             recorder = webMRecorder;
         }
 
+        recorder.outputDir = new DataPath(GetFilePath("Movie"));
+
         recorder.BeginRecording();
+        print(LastPath);
         yield return new WaitWhile(() => audiosource.isPlaying);
         recorder.EndRecording();
 
@@ -97,12 +100,12 @@ public class Controller : MonoBehaviour
 
         if (useWebMInsteadOfMp4)
         {
-            var webmPath = "\"" + LastPath + ".webm" + "\"";
+            var webmPath = "\"" + GetFilePath(LastPath + ".webm") + "\"";
             var mp4Path = "\"" + GetFilePath(LastPath + ".mp4") + "\"";
             var exeExtension = Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ? ".exe" : "";
             var process = Process.Start(GetFilePath("ffmpeg/ffmpeg" + exeExtension), "-i " + webmPath + " " + mp4Path);
             process.WaitForExit();
-            File.Delete(LastPath + ".webm");
+            File.Delete(GetFilePath(LastPath + ".webm"));
         }
 
         Application.Quit();
