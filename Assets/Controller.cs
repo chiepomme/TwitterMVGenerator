@@ -78,6 +78,8 @@ public class Controller : MonoBehaviour
         yield return new WaitWhile(() => audiosource.isPlaying);
         recorder.EndRecording();
 
+		yield return new WaitForSeconds(3f);
+
         if (useWebMInsteadOfMp4)
         {
             var webmPath = "\"" + GetFilePath(LastPath + ".webm") + "\"";
