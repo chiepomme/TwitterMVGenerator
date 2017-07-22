@@ -125,6 +125,7 @@ namespace UTJ.FrameCapturer
                 m_encoderConfigs.captureAudio = m_captureAudio;
                 m_encoderConfigs.Setup(m_scratchBuffer.width, m_scratchBuffer.height, 3, targetFramerate);
                 m_encoder = MovieEncoder.Create(m_encoderConfigs, outPath);
+                Controller.LastPath = outPath;
                 if (m_encoder == null || !m_encoder.IsValid())
                 {
                     EndRecording();
