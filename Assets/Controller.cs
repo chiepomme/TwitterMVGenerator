@@ -100,12 +100,12 @@ public class Controller : MonoBehaviour
 
         if (useWebMInsteadOfMp4)
         {
-            var webmPath = "\"" + GetFilePath(LastPath + ".webm") + "\"";
-            var mp4Path = "\"" + GetFilePath(LastPath + ".mp4") + "\"";
+            var webmPath = "\"" + LastPath + ".webm" + "\"";
+            var mp4Path = "\"" + LastPath + ".mp4" + "\"";
             var exeExtension = Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ? ".exe" : "";
             var process = Process.Start(GetFilePath("ffmpeg/ffmpeg" + exeExtension), "-i " + webmPath + " " + mp4Path);
             process.WaitForExit();
-            File.Delete(GetFilePath(LastPath + ".webm"));
+            File.Delete(LastPath + ".webm");
         }
 
         Application.Quit();
