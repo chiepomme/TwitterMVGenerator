@@ -29,10 +29,10 @@ public class Controller : MonoBehaviour
         switch (Application.platform)
         {
             case RuntimePlatform.OSXPlayer:
-                path = Application.dataPath + "/../../" + relativePathFromRoot;
+                path = Application.persistentDataPath + "/../../" + relativePathFromRoot;
                 break;
             default:
-                path = Application.dataPath + "/../" + relativePathFromRoot;
+                path = Application.persistentDataPath + "/../" + relativePathFromRoot;
                 break;
         }
 
@@ -50,17 +50,20 @@ public class Controller : MonoBehaviour
 
         if (File.Exists(GetFilePath("background.png")))
         {
+            print(GetFilePath("background.png"));
             var imageWWW = new WWW("file://" + GetFilePath("background.png"));
             yield return imageWWW;
             image.texture = imageWWW.texture;
         }
         else if (File.Exists(GetFilePath("background.jpg")))
         {
+            print(GetFilePath("background.jpg"));
             var imageWWW = new WWW("file://" + GetFilePath("background.jpg"));
             yield return imageWWW;
             image.texture = imageWWW.texture;
         }
 
+        print(GetFilePath("audio.wav"));
         var audiosource = gameObject.AddComponent<AudioSource>();
         var audioWWW = new WWW("file://" + GetFilePath("audio.wav"));
         yield return audioWWW;
@@ -78,7 +81,7 @@ public class Controller : MonoBehaviour
         yield return new WaitWhile(() => audiosource.isPlaying);
         recorder.EndRecording();
 
-		yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(3f);
 
         if (useWebMInsteadOfMp4)
         {
