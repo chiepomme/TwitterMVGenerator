@@ -41,8 +41,6 @@ public class Controller : MonoBehaviour
             useWebMInsteadOfMp4 = true;
         }
 
-        Screen.SetResolution(512, 512, false);
-
         if (Application.platform == RuntimePlatform.OSXPlayer)
         {
             // OSX の場合にはアプリが別のパスに隔離されてしまうので問い合わせが必要
@@ -58,6 +56,7 @@ public class Controller : MonoBehaviour
             PlayerPrefs.SetString("RootDirectory", rootDirectory);
         }
 
+
         print("rootDir:" + rootDirectory);
 
         if (File.Exists(GetFilePath("background.png")))
@@ -66,6 +65,7 @@ public class Controller : MonoBehaviour
             var imageWWW = new WWW("file://" + GetFilePath("background.png"));
             yield return imageWWW;
             image.texture = imageWWW.texture;
+            Screen.SetResolution(imageWWW.texture.width, imageWWW.texture.height, false);
         }
         else if (File.Exists(GetFilePath("background.jpg")))
         {
@@ -73,6 +73,11 @@ public class Controller : MonoBehaviour
             var imageWWW = new WWW("file://" + GetFilePath("background.jpg"));
             yield return imageWWW;
             image.texture = imageWWW.texture;
+            Screen.SetResolution(imageWWW.texture.width, imageWWW.texture.height, false);
+        }
+        else
+        {
+            Screen.SetResolution(512, 224, false);
         }
 
         print(GetFilePath("audio.wav"));
