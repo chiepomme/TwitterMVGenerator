@@ -22,6 +22,8 @@ public class Controller : MonoBehaviour
 
     string rootDirectory;
 
+    GifPlayer gifPlayer;
+
     string GetFilePath(string relativePathFromRoot)
     {
         if (relativePathFromRoot.StartsWith("./"))
@@ -65,7 +67,7 @@ public class Controller : MonoBehaviour
             var imageWWW = new WWW("file://" + GetFilePath("background.png"));
             yield return imageWWW;
             image.texture = imageWWW.texture;
-            Screen.SetResolution(imageWWW.texture.width, imageWWW.texture.height, false);
+            SetResolution(imageWWW.texture.width, imageWWW.texture.height);
         }
         else if (File.Exists(GetFilePath("background.jpg")))
         {
@@ -73,11 +75,22 @@ public class Controller : MonoBehaviour
             var imageWWW = new WWW("file://" + GetFilePath("background.jpg"));
             yield return imageWWW;
             image.texture = imageWWW.texture;
-            Screen.SetResolution(imageWWW.texture.width, imageWWW.texture.height, false);
+            SetResolution(imageWWW.texture.width, imageWWW.texture.height);
+        }
+        else if (File.Exists(GetFilePath("background.gif")))
+        {
+            print(GetFilePath("background.gif"));
+            var imageWWW = new WWW("file://" + GetFilePath("background.gif"));
+            yield return imageWWW;
+            yield return StartCoroutine(UniGif.GetTextureListCoroutine(imageWWW.bytes, (gifTexList, loopCount, width, height) =>
+            {
+                SetResolution(width, height);
+                gifPlayer = GifPlayer.Create(image, gifTexList);
+            }));
         }
         else
         {
-            Screen.SetResolution(512, 224, false);
+            SetResolution(720, 304);
         }
 
         print(GetFilePath("audio.wav"));
@@ -85,7 +98,6 @@ public class Controller : MonoBehaviour
         var audioWWW = new WWW("file://" + GetFilePath("audio.wav"));
         yield return audioWWW;
         audiosource.clip = audioWWW.GetAudioClip(false);
-        audiosource.Play();
 
         var recorder = mp4Recorder;
 
@@ -97,6 +109,11 @@ public class Controller : MonoBehaviour
         recorder.outputDir = new DataPath(GetFilePath("Movie"));
 
         recorder.BeginRecording();
+        if (gifPlayer != null)
+        {
+            gifPlayer.PlaySyncWith(audiosource);
+        }
+        audiosource.Play();
         print(LastPath);
         yield return new WaitWhile(() => audiosource.isPlaying);
         recorder.EndRecording();
@@ -114,5 +131,18 @@ public class Controller : MonoBehaviour
         }
 
         Application.Quit();
+    }
+
+    void SetResolution(int width, int height)
+    {
+        const int MinimumResolution = 720;
+        if (width < MinimumResolution || height < MinimumResolution)
+        {
+            var scale = (float)MinimumResolution / Mathf.Min(width, height);
+            width = Mathf.RoundToInt(width * scale);
+            height = Mathf.RoundToInt(height * scale);
+        }
+
+        Screen.SetResolution(width, height, false);
     }
 }
