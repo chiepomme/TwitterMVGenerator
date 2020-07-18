@@ -1,6 +1,4 @@
-﻿using SFB;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
@@ -31,12 +29,12 @@ public class Controller : MonoBehaviour
             relativePathFromRoot = relativePathFromRoot.Substring(2);
         }
 
-        return new FileInfo(rootDirectory + relativePathFromRoot).FullName.Replace("\\", "/");
+        return Path.Combine(rootDirectory, relativePathFromRoot);
     }
 
     IEnumerator Start()
     {
-        rootDirectory = Application.dataPath + "/../";
+        rootDirectory = Directory.GetParent(Application.dataPath).ToString();
 
         if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer)
         {
@@ -45,17 +43,7 @@ public class Controller : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.OSXPlayer)
         {
-            // OSX の場合にはアプリが別のパスに隔離されてしまうので問い合わせが必要
-            var dir = PlayerPrefs.HasKey("RootDirectory") ? PlayerPrefs.GetString("RootDirectory") : "";
-            var paths = StandaloneFileBrowser.OpenFilePanel("audio.wav を選択してください", dir, "wav", false);
-            if (paths.Length == 0)
-            {
-                Application.Quit();
-                yield break;
-            }
-
-            rootDirectory = Uri.UnescapeDataString(Path.GetDirectoryName(paths[0]).Replace("file:", "") + "/");
-            PlayerPrefs.SetString("RootDirectory", rootDirectory);
+            rootDirectory = new DirectoryInfo(Application.dataPath).Parent.Parent.ToString();
         }
 
 
@@ -113,6 +101,7 @@ public class Controller : MonoBehaviour
         {
             gifPlayer.PlaySyncWith(audiosource);
         }
+
         audiosource.Play();
         print(LastPath);
         yield return new WaitWhile(() => audiosource.isPlaying);
@@ -122,12 +111,12 @@ public class Controller : MonoBehaviour
 
         if (useWebMInsteadOfMp4)
         {
-            var webmPath = "\"" + LastPath + ".webm" + "\"";
-            var mp4Path = "\"" + LastPath + ".mp4" + "\"";
+            var webmPath = $"\"{LastPath}.webm\"";
+            var mp4Path = $"\"{LastPath}.mp4\"";
             var exeExtension = Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ? ".exe" : "";
-            var process = Process.Start(GetFilePath("ffmpeg/ffmpeg" + exeExtension), "-i " + webmPath + " " + mp4Path);
+            var process = Process.Start(GetFilePath($"ffmpeg/ffmpeg{exeExtension}"), $"-i {webmPath} {mp4Path}");
             process.WaitForExit();
-            File.Delete(LastPath + ".webm");
+            File.Delete($"{LastPath}.webm");
         }
 
         Application.Quit();

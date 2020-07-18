@@ -197,7 +197,7 @@ namespace UTJ.FrameCapturer
                 // clear gbuffer (Unity doesn't clear emission buffer - it is not needed usually)
                 m_cbClearGB = new CommandBuffer();
                 m_cbClearGB.name = "GBufferRecorder: Cleanup GBuffer";
-                if (cam.hdr)
+                if (cam.allowHDR)
                 {
                     m_cbClearGB.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
                 }
