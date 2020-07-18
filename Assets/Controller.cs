@@ -125,7 +125,7 @@ public class Controller : MonoBehaviour
             var webmPath = "\"" + LastPath + ".webm" + "\"";
             var mp4Path = "\"" + LastPath + ".mp4" + "\"";
             var exeExtension = Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer ? ".exe" : "";
-            var process = Process.Start(GetFilePath("ffmpeg/ffmpeg" + exeExtension), "-i " + webmPath + " " + mp4Path);
+            var process = Process.Start(GetFilePath("ffmpeg/ffmpeg" + exeExtension), "-i " + webmPath + " -r 30 " + mp4Path);
             process.WaitForExit();
             File.Delete(LastPath + ".webm");
         }
