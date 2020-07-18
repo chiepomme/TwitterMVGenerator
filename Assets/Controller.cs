@@ -45,17 +45,7 @@ public class Controller : MonoBehaviour
 
         if (Application.platform == RuntimePlatform.OSXPlayer)
         {
-            // OSX の場合にはアプリが別のパスに隔離されてしまうので問い合わせが必要
-            var dir = PlayerPrefs.HasKey("RootDirectory") ? PlayerPrefs.GetString("RootDirectory") : "";
-            var paths = StandaloneFileBrowser.OpenFilePanel("audio.wav を選択してください", dir, "wav", false);
-            if (paths.Length == 0)
-            {
-                Application.Quit();
-                yield break;
-            }
-
-            rootDirectory = Uri.UnescapeDataString(Path.GetDirectoryName(paths[0]).Replace("file:", "") + "/");
-            PlayerPrefs.SetString("RootDirectory", rootDirectory);
+            rootDirectory = new DirectoryInfo(Application.dataPath).Parent.Parent + "/";
         }
 
 
